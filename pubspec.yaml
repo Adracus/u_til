@@ -1,0 +1,4 @@
+name: u_til
+description: A pub package
+dev_dependencies:
+  unittest: any
