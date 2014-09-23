@@ -1,4 +1,8 @@
 name: u_til
+version: 0.0.1
+author: Axel Christ <adracus@gmail.com>
 description: A pub package
+homepage: https://github.com/Adracus/u_til
+documentation: https://github.com/Adracus/u_til
 dev_dependencies:
   unittest: any
