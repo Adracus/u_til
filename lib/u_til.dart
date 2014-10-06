@@ -45,13 +45,34 @@ class _$ {
 class $string extends $object {
   $string(String target) : super(target);
   
+  
   String repeat(int times) => target * times;
+  
   
   String longer(String other) =>
       target.length >= other.length ? target : other;
   
+  
   String shorter(String other) =>
       target.length <= other.length ? target : other;
+  
+  
+  bool equalsIgnoreCase(String other) =>
+      target.toLowerCase() == other.toLowerCase();
+  
+  
+  String flip() {
+    if (target == null || target == "") return target;
+    StringBuffer sb = new StringBuffer();
+    var runes = target.runes;
+    for (int i = runes.length - 1; i >= 0; i--) {
+      sb.writeCharCode(runes.elementAt(i));
+    }
+    return sb.toString();
+  }
+  
+  
+  bool get isBlank => target == null || target == "";
 }
 
 
@@ -110,6 +131,7 @@ class $list extends $object {
   
   bool _isList(other) => other is List || other is $list;
   
+  
   bool operator==(other) {
     if (!_isList(other)) return false;
     if (other.length != _target.length) return false;
@@ -117,6 +139,28 @@ class $list extends $object {
       if (!($(_target[i]) == other[i])) return false;
     }
     return true;
+  }
+  
+  max() {
+    if (target.length == 0)
+      throw new Exception("Cannot get maximum element of empty list");
+    if (target.length == 1) return target.single;
+    var start = target.first;
+    for (int i = 1; i < target.length; i++) {
+      if (target[i] > start) start = target[i];
+    }
+    return start;
+  }
+  
+  min() {
+    if (target.length == 0)
+      throw new Exception("Cannot get maximum element of empty list");
+    if (target.length == 1) return target.single;
+    var start = target.first;
+    for (int i = 1; i < target.length; i++) {
+      if (target[i] < start) start = target[i];
+    }
+    return start;
   }
 }
 

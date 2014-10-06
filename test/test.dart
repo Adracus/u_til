@@ -25,6 +25,16 @@ main() {
       expect($(l1).extract(String), contains("test"));
       expect($(l1).extract(double), contains(.1));
     });
+    
+    test("List minimum and maximum", () {
+      var l1 = [1, 2, 3, .1, .2];
+      expect($(l1).min(), equals(.1));
+      expect($(l1).max(), equals(3));
+      expect($([]).max, throwsException);
+      expect($([]).min, throwsException);
+      expect($([1]).max(), equals(1));
+      expect($([1]).min(), equals(1));
+    });
   });
   
   group("\$map-Tests", () {
