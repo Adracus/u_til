@@ -28,7 +28,13 @@ main() {
   });
   
   group("\$map-Tests", () {
-    
+    test("Where function", () {
+      var test = {0: 0, 1: 1, -1: -1, 100: 100, 10: 20};
+      expect($(test).whereKey((key) => key < 0), equals({-1: -1}));
+      expect($(test).whereKey((key) => key > 0), equals({1: 1, 100: 100, 10: 20}));
+      expect($(test).whereValue((val) => val == 20), equals({10: 20}));
+      expect($(test).whereValue((val) => val == "w"), equals({}));
+    });
   });
   
   group("\$object-Tests", () {

@@ -25,6 +25,7 @@ class _$ {
   
   $object call([arg]) {
     if (arg is $object) return arg;
+    if (arg is String) return new $string(arg);
     if (arg is num || arg is int || arg is double) return new $num(arg);
     if (arg is List) return new $list(arg);
     if (arg is Map) return new $map(arg);
@@ -39,6 +40,20 @@ class _$ {
   $libraryMirror get rootLibrary =>
       $(currentMirrorSystem().libraries[Platform.script]);
 }
+
+
+class $string extends $object {
+  $string(String target) : super(target);
+  
+  String repeat(int times) => target * times;
+  
+  String longer(String other) =>
+      target.length >= other.length ? target : other;
+  
+  String shorter(String other) =>
+      target.length <= other.length ? target : other;
+}
+
 
 class $type extends $object {
   $type(Type target) : super(target);
@@ -153,23 +168,15 @@ class $classMirror extends $object {
 class $map extends $object {
   $map(Map target) : super(target);
   
-  Map retainWhereValue(bool test(value)) {
-    var result = {};
-    _target.forEach((k, v) {
-      if (test(v)) result[k] = v;
-    });
-    return result;
+  Map whereValue(bool test(value)) {
+    return where((_, value) => test(value));
   }
   
-  Map retainWhereKey(bool test(key)) {
-    var result = {};
-    _target.forEach((k, v) {
-      if (test(k)) result[k] = v;
-    });
-    return result;
+  Map whereKey(bool test(key)) {
+    return where((key, _) => test(key));
   }
   
-  Map retainWhere(bool test(key, value)) {
+  Map where(bool test(key, value)) {
     var result = {};
     _target.forEach((k, v) {
       if (test(k, v)) result[k] = v;
@@ -177,7 +184,7 @@ class $map extends $object {
     return result;
   }
   
-  Map transformValue(transform(value)) {
+  Map mapValue(transform(value)) {
     var result = {};
     _target.forEach((k, v) {
       result[k] = transform(v);
@@ -185,7 +192,7 @@ class $map extends $object {
     return result;
   }
   
-  Map transformKey(transform(key)) {
+  Map mapKey(transform(key)) {
     var result = {};
     _target.forEach((k, v) {
       result[transform(k)] = v;
@@ -193,7 +200,7 @@ class $map extends $object {
     return result;
   }
   
-  Map transform(transformKey(key), transformValue(value)) {
+  Map map(transformKey(key), transformValue(value)) {
     var result = {};
     _target.forEach((k, v) {
       result[transformKey(k)] = transformValue(v);
