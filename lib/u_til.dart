@@ -42,7 +42,7 @@ class _$ {
 }
 
 
-class $string extends $object {
+class $string extends $object<String> {
   $string(String target) : super(target);
   
   
@@ -76,7 +76,7 @@ class $string extends $object {
 }
 
 
-class $type extends $object {
+class $type extends $object<Type> {
   $type(Type target) : super(target);
   
   Symbol get qualifiedName => reflectType(target).qualifiedName;
@@ -84,7 +84,7 @@ class $type extends $object {
 }
 
 @proxy
-class $function extends $object {
+class $function extends $object<Function> {
   $function(Function target) : super(target);
   
   noSuchMethod(Invocation invocation) {
@@ -94,7 +94,7 @@ class $function extends $object {
 }
 
 @proxy
-class $symbol extends $object {
+class $symbol extends $object<Symbol> {
   $symbol(Symbol target) : super(target);
   
   String get name => MirrorSystem.getName(target);
@@ -106,26 +106,26 @@ class $num extends $object {
   
   void times(f(int index), {int start: 0, bool reverse: false}) {
     if (!reverse) {
-      for (int i = start; i < _target; i++) {
+      for (int i = start; i < target; i++) {
         f(i);
       }
       return;
     }
-    for (int i = _target - 1; i >= start; i--) {
+    for (int i = target - 1; i >= start; i--) {
       f(i);
     }
   }
 }
 
 @proxy
-class $list extends $object {
+class $list extends $object<List> {
   $list(List target) : super(target);
   
   get randomElement => target[new Random().nextInt(target.length)];
   
   List extract(type) {
-    var _type = type is $type ? type._target : type;
-    return _target.where((elem) =>
+    var _type = type is $type ? type.target : type;
+    return target.where((elem) =>
         reflect(elem).type.isAssignableTo(reflectType(_type))).toList();
   }
   
@@ -134,9 +134,9 @@ class $list extends $object {
   
   bool operator==(other) {
     if (!_isList(other)) return false;
-    if (other.length != _target.length) return false;
-    for (int i = 0; i < _target.length; i++) {
-      if (!($(_target[i]) == other[i])) return false;
+    if (other.length != target.length) return false;
+    for (int i = 0; i < target.length; i++) {
+      if (!($(target[i]) == other[i])) return false;
     }
     return true;
   }
@@ -165,7 +165,7 @@ class $list extends $object {
 }
 
 @proxy
-class $libraryMirror extends $object {
+class $libraryMirror extends $object<LibraryMirror> {
   $libraryMirror(LibraryMirror target) : super(target);
   
   Map<Symbol, ClassMirror> getClasses({bool recursive: true}) =>
@@ -181,7 +181,7 @@ class $libraryMirror extends $object {
     });
     doneLibraries.add(target);
     if (recursive) {
-      _target.libraryDependencies.forEach((dependency) {
+      target.libraryDependencies.forEach((dependency) {
         if (dependency.targetLibrary is LibraryMirror) {
           result.addAll($(dependency.targetLibrary)
               ._getClassMirrors(doneLibraries: doneLibraries));
@@ -193,11 +193,11 @@ class $libraryMirror extends $object {
 }
 
 @proxy
-class $classMirror extends $object {
+class $classMirror extends $object<ClassMirror> {
   $classMirror(ClassMirror target) : super(target);
   
   Map<Symbol, VariableMirror> get fields {
-    var cm = target as ClassMirror;
+    var cm = target;
     if (cm.superclass == null) return {};
     var result = {};
     cm.declarations.forEach((sym, mirr) {
@@ -209,7 +209,7 @@ class $classMirror extends $object {
 }
 
 @proxy
-class $map extends $object {
+class $map extends $object<Map> {
   $map(Map target) : super(target);
   
   Map whereValue(bool test(value)) {
@@ -222,7 +222,7 @@ class $map extends $object {
   
   Map where(bool test(key, value)) {
     var result = {};
-    _target.forEach((k, v) {
+    target.forEach((k, v) {
       if (test(k, v)) result[k] = v;
     });
     return result;
@@ -230,7 +230,7 @@ class $map extends $object {
   
   Map mapValue(transform(value)) {
     var result = {};
-    _target.forEach((k, v) {
+    target.forEach((k, v) {
       result[k] = transform(v);
     });
     return result;
@@ -238,7 +238,7 @@ class $map extends $object {
   
   Map mapKey(transform(key)) {
     var result = {};
-    _target.forEach((k, v) {
+    target.forEach((k, v) {
       result[transform(k)] = v;
     });
     return result;
@@ -246,7 +246,7 @@ class $map extends $object {
   
   Map map(transformKey(key), transformValue(value)) {
     var result = {};
-    _target.forEach((k, v) {
+    target.forEach((k, v) {
       result[transformKey(k)] = transformValue(v);
     });
     return result;
@@ -254,7 +254,7 @@ class $map extends $object {
   
   List flatten(flatten(key, value)) {
     var result = [];
-    _target.forEach((k, v) {
+    target.forEach((k, v) {
       result.add(flatten(k, v));
     });
     return result;
@@ -262,18 +262,18 @@ class $map extends $object {
 }
 
 @proxy
-class $object {
-  var _target;
+class $object<E> {
+  final E target;
   
-  $object(this._target);
+  $object(this.target);
   
   noSuchMethod(Invocation invocation) {
-    return reflect(_target).delegate(invocation);
+    return reflect(target).delegate(invocation);
   }
   
-  bool equalsOneOrMoreOf(List arg) => arg.any((elem) => _target == elem);
+  bool equalsOneOrMoreOf(List arg) => arg.any((elem) => target == elem);
   bool identicalToOneOrMoreOf(List arg) =>
-      arg.any((elem) => identical(_target, elem));
+      arg.any((elem) => identical(target, elem));
   
   ifNull(then) {
     if(target == null && then is Function) {
@@ -290,15 +290,13 @@ class $object {
   }
   
   bool operator ==(Object other) =>
-      other is $object ? _target == other.target : _target == other;
+      other is $object ? target == other.target : target == other;
   
   ClassMirror get classMirror => reflect(this).type;
-  bool isNull() => _target == null;
+  bool isNull() => target == null;
   
-  get target => _target;
-  
-  Type get runtimeType => _target.runtimeType;
-  int get hashCode => _target.hashCode;
-  toString() => _target.toString();
-  void printSelf() => print(_target);
+  Type get runtimeType => target.runtimeType;
+  int get hashCode => target.hashCode;
+  toString() => target.toString();
+  void printSelf() => print(target);
 }
