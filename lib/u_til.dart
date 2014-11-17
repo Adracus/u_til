@@ -19,6 +19,8 @@ class Range<C extends Comparable> {
       arg.compareTo(start) >= 0 && arg.compareTo(end) <=0;
 }
 
+
+
 @proxy
 class _$ {
   const _$();
@@ -28,6 +30,7 @@ class _$ {
     if (arg is String) return new $string(arg);
     if (arg is num || arg is int || arg is double) return new $num(arg);
     if (arg is List) return new $list(arg);
+    if (arg is Iterable) return new $iterable(arg);
     if (arg is Map) return new $map(arg);
     if (arg is Symbol) return new $symbol(arg);
     if (arg is ClassMirror) return new $classMirror(arg);
@@ -42,6 +45,48 @@ class _$ {
 }
 
 
+
+@proxy
+class $random extends $object<Random> {
+  $random(Random target) : super(target);
+  
+  
+  int nextIntBetween(int min, int max) {
+    return min + target.nextInt(max - min);
+  }
+  
+  
+  List<int> nextInts(int n, int max) {
+    return new List.generate(n, (_) => target.nextInt(max));
+  }
+  
+  
+  List<int> nextIntsBetween(int n, int min, int max) {
+    return new List.generate(n, (_) => nextIntBetween(min, max));
+  }
+  
+  
+  Set<int> nextDistinctInts(int n, int max) {
+    var result = new Set();
+    while (result.length < n) {
+      result.add(target.nextInt(max));
+    }
+    return result;
+  }
+  
+  
+  Set<int> nextDistinctIntsBetween(int n, int min, int max) {
+    var result = new Set();
+    while (result.length < n) {
+      result.add(nextIntBetween(min, max));
+    }
+    return result;
+  }
+}
+
+
+
+@proxy
 class $string extends $object<String> {
   $string(String target) : super(target);
   
@@ -63,17 +108,13 @@ class $string extends $object<String> {
   
   String flip() {
     if (target == null || target == "") return target;
-    StringBuffer sb = new StringBuffer();
-    var runes = target.runes;
-    for (int i = runes.length - 1; i >= 0; i--) {
-      sb.writeCharCode(runes.elementAt(i));
-    }
-    return sb.toString();
+    return new String.fromCharCodes(target.runes.toList().reversed);
   }
   
   
   bool get isBlank => target == null || target == "";
 }
+
 
 
 class $type extends $object<Type> {
@@ -82,6 +123,8 @@ class $type extends $object<Type> {
   Symbol get qualifiedName => reflectType(target).qualifiedName;
   Symbol get simpleName => reflectType(target).simpleName;
 }
+
+
 
 @proxy
 class $function extends $object<Function> {
@@ -93,12 +136,16 @@ class $function extends $object<Function> {
   }
 }
 
+
+
 @proxy
 class $symbol extends $object<Symbol> {
   $symbol(Symbol target) : super(target);
   
   String get name => MirrorSystem.getName(target);
 }
+
+
 
 @proxy
 class $num extends $object {
@@ -115,31 +162,50 @@ class $num extends $object {
       f(i);
     }
   }
+  
+  List map(f(int index)) {
+    var result = [];
+    for (int i = 0; i < target; i++) {
+      result.add(f(i));
+    }
+    return result;
+  }
 }
 
+
+
 @proxy
-class $list extends $object<List> {
-  $list(List target) : super(target);
+class $iterable<E extends Iterable> extends $object<E> {
+  $iterable(Iterable target) : super(target);
   
-  get randomElement => target[new Random().nextInt(target.length)];
   
-  List extract(type) {
+  get randomElement => target.elementAt(new Random().nextInt(target.length));
+  
+  
+  Iterable extract(type) {
     var _type = type is $type ? type.target : type;
     return target.where((elem) =>
-        reflect(elem).type.isAssignableTo(reflectType(_type))).toList();
+        reflect(elem).type.isAssignableTo(reflectType(_type)));
   }
   
-  bool _isList(other) => other is List || other is $list;
+  
+  Set getDistinctRandomElements(int n) {
+    return new Set.from((
+        new Set.from(target).toList()..shuffle()).sublist(0, n));
+  }
   
   
   bool operator==(other) {
-    if (!_isList(other)) return false;
+    if (other is! Iterable && other is! $iterable) return false;
+    var l = other is Iterable ? other: other.target;
     if (other.length != target.length) return false;
-    for (int i = 0; i < target.length; i++) {
-      if (!($(target[i]) == other[i])) return false;
+    while (target.iterator.moveNext() && other.iterator.moveNext()) {
+      if (!($(target.iterator.current) == $(other.iterator.current)))
+        return false;
     }
     return true;
   }
+  
   
   max() {
     if (target.length == 0)
@@ -147,10 +213,11 @@ class $list extends $object<List> {
     if (target.length == 1) return target.single;
     var start = target.first;
     for (int i = 1; i < target.length; i++) {
-      if (target[i] > start) start = target[i];
+      if (target.elementAt(i) > start) start = target.elementAt(i);
     }
     return start;
   }
+  
   
   min() {
     if (target.length == 0)
@@ -158,10 +225,17 @@ class $list extends $object<List> {
     if (target.length == 1) return target.single;
     var start = target.first;
     for (int i = 1; i < target.length; i++) {
-      if (target[i] < start) start = target[i];
+      if (target.elementAt(i) < start) start = target.elementAt(i);
     }
     return start;
   }
+}
+
+
+
+@proxy
+class $list extends $iterable<List> {
+  $list(List target) : super(target);
 }
 
 @proxy
