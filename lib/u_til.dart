@@ -20,6 +20,37 @@ class Range<C extends Comparable> {
 }
 
 
+class NumericRange extends Range<num> {
+  NumericRange(num start, num end) : super(start, end);
+  
+  List map(f(num i), {num stepWidth: 1}) {
+    var result = [];
+    for (num i = start; i < end; i += stepWidth) {
+      result.add(f(i));
+    }
+    return result;
+  }
+  
+  void forEach(f(num i), {num stepWidth: 1}) {
+    for (num i = start; i < end; i += stepWidth) {
+      f(i);
+    }
+  }
+}
+
+
+class NumericRangeBuilder {
+  final num start;
+  
+  NumericRangeBuilder(this.start);
+  
+  NumericRange to(num end) {
+    if (start > end) throw new ArgumentError("Start cannot be > end");
+    return new NumericRange(start, end);
+  }
+}
+
+
 
 @proxy
 class _$ {
@@ -42,6 +73,8 @@ class _$ {
   
   $libraryMirror get rootLibrary =>
       $(currentMirrorSystem().libraries[Platform.script]);
+  
+  NumericRangeBuilder from(num start) => new NumericRangeBuilder(start);
 }
 
 
@@ -199,7 +232,9 @@ class $iterable<E extends Iterable> extends $object<E> {
     if (other is! Iterable && other is! $iterable) return false;
     var l = other is Iterable ? other: other.target;
     if (other.length != target.length) return false;
-    while (target.iterator.moveNext() && other.iterator.moveNext()) {
+    var thisIterator = target.iterator;
+    var otherIterator = other.iterator as Iterator;
+    while (thisIterator.moveNext() && otherIterator.moveNext()) {
       if (!($(target.iterator.current) == $(other.iterator.current)))
         return false;
     }
@@ -332,6 +367,16 @@ class $map extends $object<Map> {
       result.add(flatten(k, v));
     });
     return result;
+  }
+  
+  bool operator==(other) {
+    if (other is! Map && other is! $map) return false;
+    var m = other is $map ? other.target : other;
+    if (this.target.length != m.length) return false;
+    for (var key in this.target.keys) {
+      if (!($(this.target[key]) == $(m[key]))) return false;
+    }
+    return true;
   }
 }
 

@@ -45,6 +45,16 @@ main() {
       expect($(test).whereValue((val) => val == 20), equals({10: 20}));
       expect($(test).whereValue((val) => val == "w"), equals({}));
     });
+    
+    test("Equality", () {
+      var m1 = {"test": 123, 1314: "otherTest"};
+      var m2 = {"test": 123, 1314: "otherTest"};
+      var m3 = {"test": 234, 1314: "otherTest"};
+      var m4 = {"i don't": 13, 213: "have the same keys"};
+      expect($(m1) == m2, equals(true));
+      expect($(m1) == m3, equals(false));
+      expect($(m1) == m4, equals(false));
+    });
   });
   
   group("\$object-Tests", () {
@@ -68,16 +78,6 @@ main() {
       expect(test, equals(6));
       $(4).times((index) => test -= index, reverse: true);
       expect(test, equals(0));
-    });
-    
-  });
-  
-  group("\$function-Test", () {
-    
-    test("Function calling", () {
-      var test = (int i) => i;
-      test = $(test);
-      expect(test(5), equals(5));
     });
     
   });
