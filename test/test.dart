@@ -76,7 +76,7 @@ main() {
     test("Equality", () {
       expect($(1) == 1, equals(true));
       expect($("test") == "test", equals(true));
-      expect($(null) == null, equals(true));
+      expect($(null) == $(null), equals(true)); // VM optimizes ?!
     });
     
   });
