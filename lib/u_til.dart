@@ -235,7 +235,7 @@ class $iterable<E extends Iterable> extends $object<E> {
     var thisIterator = target.iterator;
     var otherIterator = other.iterator as Iterator;
     while (thisIterator.moveNext() && otherIterator.moveNext()) {
-      if (!($(target.iterator.current) == $(other.iterator.current)))
+      if (!($(thisIterator.current) == $(otherIterator.current)))
         return false;
     }
     return true;
@@ -408,8 +408,10 @@ class $object<E> {
     return then;
   }
   
-  bool operator ==(Object other) =>
-      other is $object ? target == other.target : target == other;
+  bool operator ==(Object other) {
+    if (other == null) return this.target == null;
+    return other is $object ? target == other.target : target == other;
+  }
   
   ClassMirror get classMirror => reflect(this).type;
   bool isNull() => target == null;

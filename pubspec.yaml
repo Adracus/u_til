@@ -1,5 +1,5 @@
 name: u_til
-version: 0.1.3
+version: 0.1.4
 author: Axel Christ <adracus@gmail.com>
 description: Several dart utilities which can be easily accessed with the $-function.
 homepage: https://github.com/Adracus/u_til

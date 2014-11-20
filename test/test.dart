@@ -16,8 +16,13 @@ main() {
     test("List equality", () {
       var l1 = [1, 2, 3, 4];
       var l2 = [1, 2, 3, 4];
+      var l3 = [2, 3, 4, 5];
+      var l4 = [4, 3, 2, 1];
       expect(l1 == l2, equals(false));
       expect($(l1) == l2, equals(true));
+      expect($(l1) == l3, equals(false));
+      expect($(l1) == l4, equals(false));
+      expect($(l1) == l4.reversed, equals(true));
     });
     
     test("List extraction", () {
@@ -66,6 +71,12 @@ main() {
       expect($(test).ifNotNull(1), equals(1));
       expect($().ifNull(true), equals(true));
       expect($().isNull(), equals(true));
+    });
+    
+    test("Equality", () {
+      expect($(1) == 1, equals(true));
+      expect($("test") == "test", equals(true));
+      expect($(null) == null, equals(true));
     });
     
   });
