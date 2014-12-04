@@ -68,6 +68,7 @@ class _$ {
     if (arg is LibraryMirror) return new $libraryMirror(arg);
     if (arg is Function) return new $function(arg);
     if (arg is Type) return new $type(arg);
+    if (arg is Random) return new $random(arg);
     return new $object(arg);
   }
   
